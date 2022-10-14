@@ -1,14 +1,15 @@
 # Défi 3 - classification
 
-## Présentation
+### Présentation
 
 L'analyse pharmaceutique (AP) est une étape essentielle de la prévention des risques liés à la prescription des médicaments.
 
 Au cours de l'AP, les pharmaciens identifient les problèmes liés aux prescriptions médicamenteuses (DRP) et déclenchent des interventions pharmaceutiques (IP) pour corriger les éventuels problèmes liés aux prescriptions.  
 
 
-L'objectif du défi 2 est de *développer et valider un modèle de classification* pour catégoriser automatiquement les IP selon la classification de la Société française de pharmacie clinique.
+L'objectif du défi 2 est de **développer et valider un modèle de classification** pour catégoriser automatiquement les IP selon la classification de la Société française de pharmacie clinique.
 
+### Data
 
 Les données sont disponibles dans le fichier *data_defi3.csv.gz*
 
@@ -23,12 +24,19 @@ Les données sont composées de 3 colonnes indicant :
 - la classe de l'IP (selon la classification  de la SFPC proposée dans le fichier SFPC_encodage.xlsx - encodage réalisé par 2 pharmaciens experts)
 
 
-En résumé :
+### En résumé:
 
-- dans un premier temps (quest 1) - vous devez développer un modèle permettant de prédire si une erreur de prescription potentiellement grave a été identifiée à partir des commentaires (une erreur est considérée comme grave si l'IP appartient aux classes 4 (Surdosage), 5 (médicament non indiqué) , 6.3 ou 6.4 (Interaction médicamenteuse - association déconseillée ou Contre_Indication) . (40 % du résultat)
+2 tâches
 
-- dans un second temps (quest 2) - vous devez développer un modèle permettant de classer automatiquement les commentaires selon les 11 classes principales (60% du résultat)
+- tâche 1 
 
+Vous devez développer un modèle permettant de prédire si une erreur de prescription potentiellement grave a été identifiée à partir des commentaires (une erreur est considérée comme grave si l'IP appartient aux classes 4 (Surdosage), 5 (médicament non indiqué) , 6.3 ou 6.4 (Interaction médicamenteuse - association déconseillée ou Contre_Indication) . (40 % du résultat)
+
+- tâche 2 
+
+Vous devez développer un modèle permettant de classer automatiquement les commentaires selon les 11 classes principales (60% du résultat)
+
+### Rendus
 
 Votre rendu correspond à 2 scripts qui peuvent fonctionner sur un fichier de même structure que le fichier de données initial et qui retournent :
 
@@ -36,14 +44,24 @@ Votre rendu correspond à 2 scripts qui peuvent fonctionner sur un fichier de m�
 
 - la classe du problème médicamenteux encodé de 1 à 11 (quest 2)
 
-Vous aurez également à rendre les prédictions du jeu de données de validations (2 colonnes)
+Vous aurez également à rendre les classifications du jeu de données de validations (2 colonnes)
 
-Un bonus sera attribué au groupe qui obtient la meilleure performance sur l'ensemble des deux scripts (exactitude, puis VPP (rappel) en cas d'égalité) sur le set de validation
+Le ficher des classifications doit être un fichier csv (séparateur virgule) et ressembler à:
+
+```r
+id_com, classif
+001, 10
+002, 5
+...
+```
+
+Un bonus sera attribué au groupe qui obtient la meilleure performance sur l'ensemble des deux scripts (50%/50%) (exactitude, puis VPP (rappel) en cas d'égalité) sur le set de validation
 
 
 ## Echéances
 
-- date de retour des scripts le 20/11/2022 à 18h  (à déposer sur moodle : remise de devoirs (fichier .r, .py ou .ipynb) et des encodages du jeu de validation
+- date de retour des scripts le 20/11/2022 à 18h  
+à déposer sur moodle : remise de devoirs (fichier .r, .py ou .ipynb) et des encodages du jeu de validation
 
 - présentations orales (et dévoilement du classement) : 24/11/2022
 
