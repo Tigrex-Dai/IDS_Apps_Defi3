@@ -14,9 +14,9 @@ def strip_accents(s):
    return ''.join(c for c in unicodedata.normalize('NFD', s)
                   if unicodedata.category(c) != 'Mn')
 
-def remove_stopwords(s):
+def remove_stopwords(s, sw):
     tokens = s.split()
-    clean_tokens = [t for t in tokens if not t in stopwords_]
+    clean_tokens = [t for t in tokens if not t in sw]
     clean_text = " ".join(clean_tokens)
     return clean_text
 
@@ -55,13 +55,19 @@ dfpreQ2['comm'] = df2['commentaire']
 dfpreQ2['catego'] = df2['catego']
 
 dfpreQ2.dropna(inplace=True)
-dfpreQ2['comm'] = dfpreQ2['comm'].apply(remove_stopwords)
+dfpreQ2['comm'] = dfpreQ2['comm'].apply(lambda x: remove_stopwords(x, stopwords_))
+stword1 = ['d\'']
+dfpreQ2['comm'] = dfpreQ2['comm'].apply(lambda x: remove_stopwords(x, stword1))
 dfpreQ2['comm'] = dfpreQ2['comm'].apply(strip_accents)
 dfpreQ2['comm'] = dfpreQ2['comm'].str.lower()
 dfpreQ2['comm'] = dfpreQ2['comm'].str.replace(r'[^a-z\s]', '')
 dfpreQ2['comm'] = dfpreQ2['comm'].str.replace(r'\s+', ' ')
 dfpreQ2['comm'] = dfpreQ2['comm'].str.strip()
 dfpreQ2['comm'] = dfpreQ2['comm'].apply(remove_short)
+
+stword2 = ['mg', 'umoll', 'kg', 'min', 'cp', 'cpr', 'ug']
+dfpreQ2['comm'] = dfpreQ2['comm'].apply(lambda x: remove_stopwords(x, stword2))
+
 
 
 
