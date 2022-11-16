@@ -6,6 +6,13 @@ import seaborn as sns
 import unicodedata
 import nltk
 from nltk.corpus import stopwords
+from dask.distributed import Client
+import joblib
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+from sklearn.model_selection import cross_validate, KFold, StratifiedKFold, cross_val_score
 
 # nltk.download("stopwords")
 stopwords_ = set(stopwords.words("french"))
@@ -26,6 +33,32 @@ def remove_short(s):
     clean_text = " ".join(clean_tokens)
     return clean_text
 
+def daskrun(MLmethod):
+    daskop = Client(n_workers=4)
+    with joblib.parallel_backend('dask'):
+        MLmethod.fit(train_features, np.ravel(train_targets))
+    print(MLmethod.score(test_features, test_targets))
+
+def daskreport(MLmethod):
+    daskop = Client(n_workers=4)
+    with joblib.parallel_backend('dask'):
+        MLmethod.fit(train_features, np.ravel(train_targets))
+        predict = MLmethod.predict(test_features)
+        print(classification_report(test_targets, predict))
+
+# def daskrunx(MLmethod, trainf, traint, testf, testt):
+#     daskop = Client(n_workers=4)
+#     with joblib.parallel_backend('dask'):
+#         MLmethod.fit(trainf, np.ravel(traint))
+#     print(MLmethod.score(testf, testt))
+#
+# def daskreportx(MLmethod, trainf, traint, testf, testt):
+#     daskop = Client(n_workers=4)
+#     with joblib.parallel_backend('dask'):
+#         MLmethod.fit(trainf, np.ravel(traint))
+#         predict = MLmethod.predict(testf)
+#         print(classification_report(testt, predict))
+
 df= pd.read_csv("data/data_defi3.csv.gz", encoding = "utf-8", sep = ";", low_memory = False)
 
 df.drop('Libellé.Prescription', axis=1, inplace=True)
@@ -41,7 +74,10 @@ for index, row in df2.iterrows():
         gravite = row['gravite']
         catego = row['catego']
 
-        df2.loc[index, 'catego'] = PLT[0]
+        if PLT == '10.0' or PLT == '11.0':
+            df2.loc[index, 'catego'] = PLT[0]+PLT[1]
+        else:
+            df2.loc[index, 'catego'] = PLT[0]
 
         if PLT.startswith('4') or PLT.startswith('5'):
             df2.loc[index, 'gravite'] = 1
@@ -64,9 +100,34 @@ dfpreQ2['comm'] = dfpreQ2['comm'].str.replace(r'[^a-z\s]', '')
 dfpreQ2['comm'] = dfpreQ2['comm'].str.replace(r'\s+', ' ')
 dfpreQ2['comm'] = dfpreQ2['comm'].str.strip()
 dfpreQ2['comm'] = dfpreQ2['comm'].apply(remove_short)
-
 stword2 = ['mg', 'umoll', 'kg', 'min', 'cp', 'cpr', 'ug']
 dfpreQ2['comm'] = dfpreQ2['comm'].apply(lambda x: remove_stopwords(x, stword2))
+
+predata = dfpreQ2.iloc[:, dfpreQ2.columns == 'comm']
+pretarget = dfpreQ2.loc[:, dfpreQ2.columns == 'catego']
+
+tfidf = TfidfVectorizer(max_features=1000, min_df=5, max_df=0.7)
+features = tfidf.fit_transform(predata['comm']).toarray()
+targets = pretarget['catego']
+
+train_features, test_features, train_targets, test_targets = train_test_split(features, targets,
+                                                                              train_size=0.8,
+                                                                              test_size=0.2,
+                                                                              random_state=42,
+                                                                              shuffle = True,
+                                                                              stratify=targets
+)
+
+if __name__ == '__main__':
+    ### Random Forest
+    rf = RandomForestClassifier(n_estimators=1000, random_state=42, verbose=1)
+    # daskrun(rf)
+    daskreport(rf)
+
+
+
+
+
 
 
 
