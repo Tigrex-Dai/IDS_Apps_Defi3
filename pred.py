@@ -97,6 +97,12 @@ def get_text_classification(estimator, trainf, traint, testf, testt):
 df= pd.read_csv("data/valid_set.csv.gz", encoding = "utf-8", sep = ";", low_memory = False)
 
 df.drop('Libellé.Prescription', axis=1, inplace=True)
+
+dftemp = pd.read_csv("./dftemp.csv", encoding = "utf-8", sep = ",", low_memory = False)
+dftemp.dropna(inplace=True)
+
+
+
 df2 = pd.concat([df, pd.DataFrame(columns=['classif'])])
 df2.columns = ['commentaire', 'classif']
 
@@ -142,14 +148,14 @@ dfpreQ2['comm'] = dfpreQ2['comm'].apply(lambda x: remove_stopwords(x, stword2))
 predata = dfpreQ2.iloc[:, dfpreQ2.columns == 'comm']
 # pretarget = dfpreQ2.loc[:, dfpreQ2.columns == 'catego']
 
-tfidf = TfidfVectorizer(max_features=1000)
-features = tfidf.fit_transform(predata['comm']).toarray()
+# tfidf = TfidfVectorizer(max_features=1000)
+# features = tfidf.fit_transform(predata['comm']).toarray()
 
 # my_load_model = models.load_model('./dl1_model.h5')
 #
 # final = my_load_model.predict(features, verbose=1)
 
 dfinal = pd.read_csv("./tempres.csv", encoding = "utf-8", sep = ",", low_memory = False)
-
-df2['classif'] = dfinal['classif']
-df2.to_csv('./Defi3_Groupe3_Q2.csv', sep=',', index=None, encoding='utf-8')
+#
+# df2['classif'] = dfinal['classif']
+# df2.to_csv('./Defi3_Groupe3_Q2.csv', sep=',', index=None, encoding='utf-8')
