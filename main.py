@@ -2,16 +2,24 @@
 
 import pandas as pd
 import numpy as np
+import time
 import seaborn as sns
 import unicodedata
 import nltk
 from nltk.corpus import stopwords
 from dask.distributed import Client
 import joblib
+from sklearn import metrics
+from sklearn.naive_bayes import MultinomialNB, GaussianNB
+from sklearn.linear_model import LogisticRegression
+import lightgbm
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
+from keras import models
+from keras import layers
+from keras.utils.np_utils import to_categorical
 from sklearn.model_selection import cross_validate, KFold, StratifiedKFold, cross_val_score
 
 # nltk.download("stopwords")
@@ -45,6 +53,33 @@ def daskreport(MLmethod):
         MLmethod.fit(train_features, np.ravel(train_targets))
         predict = MLmethod.predict(test_features)
         print(classification_report(test_targets, predict))
+
+
+def get_text_classification(estimator, trainf, traint, testf, testt):
+
+    start = time.time()
+    model = estimator
+    daskop = Client(n_workers=4)
+    with joblib.parallel_backend('dask'):
+        model.fit(trainf, np.ravel(traint))
+        print(model)
+
+        pred = model.predict(testf)
+        print(pred)
+
+        score = metrics.accuracy_score(testt, pred)
+        matrix = metrics.confusion_matrix(testt, pred)
+        report = metrics.classification_report(testt, pred)
+
+    print('>>>Accuracy\n', score)
+    print('\n>>>Recall\n', report)
+
+    end = time.time()
+    t = end - start
+    print('\n>>>Duration：', t, 's\n')
+    classifier = str(model).split('(')[0]
+
+    return pred, classifier, score, round(t, 2), matrix, report
 
 # def daskrunx(MLmethod, trainf, traint, testf, testt):
 #     daskop = Client(n_workers=4)
@@ -119,10 +154,68 @@ train_features, test_features, train_targets, test_targets = train_test_split(fe
 )
 
 if __name__ == '__main__':
+    estimator_list, score_list, time_list = [], [], []
     ### Random Forest
     rf = RandomForestClassifier(n_estimators=1000, random_state=42, verbose=1)
-    # daskrun(rf)
-    daskreport(rf)
+    resultrf = get_text_classification(rf, train_features, train_targets, test_features, test_targets)
+    estimator_list.append(resultrf[1])
+    score_list.append(resultrf[2])
+    time_list.append(resultrf[3])
+
+    ### MNB
+    mnb = MultinomialNB()
+    resultmnb = get_text_classification(mnb, train_features, train_targets, test_features, test_targets)
+    estimator_list.append(resultmnb[1])
+    score_list.append(resultmnb[2])
+    time_list.append(resultmnb[3])
+
+    ### GaussianNB
+    gnb = GaussianNB()
+    resultgnb = get_text_classification(gnb, train_features, train_targets, test_features, test_targets)
+    estimator_list.append(resultgnb[1])
+    score_list.append(resultgnb[2])
+    time_list.append(resultgnb[3])
+
+    ### Logistic Regression
+    lr = LogisticRegression(random_state=42, solver='lbfgs', multi_class='multinomial', max_iter=1000)
+    resultlr = get_text_classification(lr, train_features, train_targets, test_features, test_targets)
+    estimator_list.append(resultlr[1])
+    score_list.append(resultlr[2])
+    time_list.append(resultlr[3])
+
+    ### LightGBM
+    lgbm = lightgbm.LGBMClassifier(random_state=42, n_estimators=1000)
+    resultlgbm = get_text_classification(lgbm, train_features, train_targets, test_features, test_targets)
+    estimator_list.append(resultlgbm[1])
+    score_list.append(resultlgbm[2])
+    time_list.append(resultlgbm[3])
+
+    # ### Deep Learning 1
+    # start = time.time()
+    #
+    # feature_num = train_features.shape[1]  # 设置所希望的特征数量
+    #
+    # train_targets_cate = to_categorical(train_targets)
+    # test_targets_cate = to_categorical(test_targets)
+    # #print(train_targets_cate)
+
+
+
+
+
+
+
+
+
+
+
+    dfeva = pd.DataFrame()
+    dfeva['model'] = estimator_list
+    dfeva['accuracy'] = score_list
+    dfeva['time/s'] = time_list
+    print(dfeva)
+
+
 
 
 
