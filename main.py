@@ -270,6 +270,8 @@ if __name__ == '__main__':
     # save model
     network.save('./dl1_model.h5')  # 保存模型
 
+
+
     # my_load_model = models.load_model('./dl1_model.h5')
     # my_load_model.predict(features)[:20]
 
