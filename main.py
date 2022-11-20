@@ -199,60 +199,34 @@ if __name__ == '__main__':
     ### Deep Learning 1
     start = time.time()
 
-    feature_num = train_features.shape[1]  # 设置所希望的特征数量
+    feature_num = train_features.shape[1]
 
     train_targets_cate = to_categorical(train_targets)
     test_targets_cate = to_categorical(test_targets)
     #print(train_targets_cate)
 
-    # 1 创建神经网络
     network = models.Sequential()
 
-    # ----------------------------------------------------
-    # 2 添加神经连接层
-    # 第一层必须有并且一定是 [输入层], 必选
-    network.add(layers.Dense(  # 添加带有 relu 激活函数的全连接层
-        units=128,
-        activation='relu',
-        input_shape=(feature_num,)
-    ))
-
-    # 介于第一层和最后一层之间的称为 [隐藏层]，可选
-    network.add(layers.Dense(  # 添加带有 relu 激活函数的全连接层
-        units=128,
-        activation='relu'
-    ))
+    network.add(layers.Dense(units=128, activation='relu', input_shape=(feature_num,)))
+    network.add(layers.Dense(units=128, activation='relu'))
     network.add(layers.Dropout(0.8))
-    # 最后一层必须有并且一定是 [输出层], 必选
-    network.add(layers.Dense(  # 添加带有 softmax 激活函数的全连接层
-        units=12,
-        activation='sigmoid'
-    ))
+    network.add(layers.Dense(units=12, activation='sigmoid'))
 
-    # -----------------------------------------------------
-    # 3 编译神经网络
-    network.compile(loss='categorical_crossentropy',  # 分类交叉熵损失函数
+    network.compile(loss='categorical_crossentropy',
                     optimizer='rmsprop',
-                    metrics=['accuracy']  # 准确率度量
+                    metrics=['accuracy']
                     )
 
-    # -----------------------------------------------------
-    # 4 开始训练神经网络
-    history = network.fit(train_features,  # 训练集特征
-                          train_targets_cate,  # 训练集标签
-                          epochs=20,  # 迭代次数
-                          batch_size=300,  # 每个批量的观测数  可做优化
-                          validation_data=(test_features, test_targets_cate)  # 验证测试集数据
+    history = network.fit(train_features,
+                          train_targets_cate,
+                          epochs=20,
+                          batch_size=300,
+                          validation_data=(test_features, test_targets_cate)
                           )
     network.summary()
 
-    # -----------------------------------------------------
-    # 5 模型预测
     y_pred_keras = network.predict(test_features)
 
-    # -----------------------------------------------------
-    # 6 性能评估
-    print('>>>多分类前馈神经网络性能评估如下...\n')
     score = network.evaluate(test_features,
                              test_targets_cate,
                              batch_size=32)
@@ -264,45 +238,27 @@ if __name__ == '__main__':
     score_list.append(score[1])
     time_list.append(round(end - start, 2))
 
-    # ----------------------------------------------------
-    # 7 保存/加载模型
-
     # save model
-    network.save('./dl1_model.h5')  # 保存模型
-
-
-
-    # my_load_model = models.load_model('./dl1_model.h5')
-    # my_load_model.predict(features)[:20]
-
-    # ----------------------------------------------------
+    network.save('./dl1_model.h5')
 
     # ### Deep Learning 2
     # start = time.time()
-    #
-    # # ----------------------------------------------
-    # # 1 创建神经网络
+
     # lstm_network = models.Sequential()
-    #
-    # # ----------------------------------------------
-    # # 2 添加神经层
-    # lstm_network.add(layers.Embedding(input_dim=feature_num,  # 添加嵌入层
+
+    # lstm_network.add(layers.Embedding(input_dim=feature_num,
     #                                   output_dim=12))
     #
-    # lstm_network.add(layers.LSTM(units=128))                 # 添加 128 个单元的 LSTM 神经层
+    # lstm_network.add(layers.LSTM(units=128))
     #
     # lstm_network.add(layers.Dense(units=12,
-    #                               activation='sigmoid'))     # 添加 sigmoid 分类激活函数的全连接层
-    #
-    # # ----------------------------------------------
-    # # 3 编译神经网络
+    #                               activation='sigmoid'))
+
     # lstm_network.compile(loss='binary_crossentropy',
     #                      optimizer='Adam',
     #                      metrics=['accuracy']
     #                      )
-    #
-    # # ----------------------------------------------
-    # # 4 开始训练模型
+
     # lstm_network.fit(train_features,
     #                  train_targets_cate,
     #                  epochs=5,
@@ -311,14 +267,9 @@ if __name__ == '__main__':
     #                  )
     #
     # lstm_network.summary()
-    #
-    # # -----------------------------------------------------
-    # # 5 模型预测
+
     # y_pred_lstm = lstm_network.predict(test_features)
-    #
-    # # -----------------------------------------------------
-    # # 6 性能评估
-    # print('>>>多分类前馈神经网络性能评估如下...\n')
+
     # score = lstm_network.evaluate(test_features,
     #                          test_targets_cate,
     #                          batch_size=32)
@@ -329,12 +280,10 @@ if __name__ == '__main__':
     # estimator_list.append('DL2')
     # score_list.append(score[1])
     # time_list.append(round(end - start, 2))
-    #
-    # # ----------------------------------------------------
-    # # 7 保存/加载模型
+
     #
     # # save model
-    # lstm_network.save('./dl2_model.h5')  # 保存模型
+    # lstm_network.save('./dl2_model.h5')
 
 
     dfeva = pd.DataFrame()

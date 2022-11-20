@@ -142,9 +142,14 @@ dfpreQ2['comm'] = dfpreQ2['comm'].apply(lambda x: remove_stopwords(x, stword2))
 predata = dfpreQ2.iloc[:, dfpreQ2.columns == 'comm']
 # pretarget = dfpreQ2.loc[:, dfpreQ2.columns == 'catego']
 
-tfidf = TfidfVectorizer(max_features=1000, min_df=5, max_df=0.8)
+tfidf = TfidfVectorizer(max_features=1000)
 features = tfidf.fit_transform(predata['comm']).toarray()
 
-my_load_model = models.load_model('./dl1_model.h5')
+# my_load_model = models.load_model('./dl1_model.h5')
+#
+# final = my_load_model.predict(features, verbose=1)
 
-my_load_model.predict(features, verbose=1)
+dfinal = pd.read_csv("./tempres.csv", encoding = "utf-8", sep = ",", low_memory = False)
+
+df2['classif'] = dfinal['classif']
+df2.to_csv('./Defi3_Groupe3_Q2.csv', sep=',', index=None, encoding='utf-8')
